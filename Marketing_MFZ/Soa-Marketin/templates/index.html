@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Fit · Servicio web</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14161A; --paper:#EDEFF1; --card:#FFFFFF; --line:#D5D9DE;
+  --muted:#5B636C; --yellow:#FFC400; --ok:#1F7A4D; --bad:#C8321E;
+  --console:#171A1F; --console-ink:#E4E7EB;
+  --head:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Barlow","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:1rem}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--body)}
+h1,h2,h3{font-family:var(--head);font-weight:700;margin:0;letter-spacing:.01em}
+
+/* Cabecera */
+.top{background:var(--ink);color:#fff;border-bottom:6px solid var(--yellow)}
+.top-in{max-width:1280px;margin:0 auto;padding:1.1rem 1.5rem;display:flex;gap:1.5rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand h1{font-size:2.1rem;line-height:1;color:var(--yellow)}
+.brand p{margin:.15rem 0 0;color:#B8BEC6;font-size:.95rem}
+.status{display:flex;align-items:center;gap:.5rem;font-size:.9rem;color:#B8BEC6}
+.dot{width:.6rem;height:.6rem;border-radius:50%;background:#777}
+.dot.on{background:#3DDC84}
+.dot.off{background:var(--bad)}
+
+/* Estructura */
+.wrap{max-width:1280px;margin:0 auto;padding:1.5rem;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:1.5rem;align-items:start}
+@media (max-width:980px){.wrap{grid-template-columns:1fr}}
+
+/* Pestañas */
+.tabs{display:flex;gap:.25rem;border-bottom:2px solid var(--ink);margin-bottom:1.25rem}
+.tab{font:600 1.15rem var(--head);letter-spacing:.02em;padding:.55rem 1.1rem;border:0;background:transparent;color:var(--muted);cursor:pointer;border-radius:6px 6px 0 0}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--yellow)}
+.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--yellow);outline-offset:2px;box-shadow:0 0 0 5px var(--ink)}
+.panel[hidden]{display:none}
+
+/* Tarjetas y formularios */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:1.25rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:1.25rem}
+.card h2{font-size:1.5rem;margin-bottom:.15rem}
+.card .hint{margin:0 0 1rem;color:var(--muted);font-size:.92rem}
+label{display:block;font-weight:600;font-size:.9rem;margin:.75rem 0 .25rem}
+input,select{width:100%;padding:.55rem .65rem;font:inherit;border:1.5px solid #9AA2AB;border-radius:6px;background:#fff;color:var(--ink)}
+input:focus,select:focus{border-color:var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.check{display:flex;align-items:center;gap:.5rem;margin-top:.9rem;font-weight:500}
+.check input{width:auto}
+.btn{margin-top:1rem;padding:.6rem 1.1rem;font:700 1.05rem var(--head);letter-spacing:.03em;background:var(--yellow);color:var(--ink);border:2px solid var(--ink);border-radius:6px;cursor:pointer}
+.btn:hover{background:#FFD23F}
+.btn.ghost{background:#fff}
+.btn.small{margin:0;padding:.25rem .6rem;font-size:.95rem}
+.btn.danger{background:#fff;color:var(--bad);border-color:var(--bad)}
+.msg{margin:.8rem 0 0;min-height:1.4rem;font-size:.93rem;font-weight:500}
+.msg.ok{color:var(--ok)} .msg.err{color:var(--bad)}
+
+/* Resultados */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem}
+.stat b{display:block;font:700 2rem/1 var(--head)}
+.stat span{color:var(--muted);font-size:.85rem}
+.member{display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:1rem;padding:1rem;border:1.5px solid var(--ink);border-radius:8px}
+.member h3{font-size:1.6rem}
+.chip{display:inline-block;padding:.1rem .6rem;border-radius:99px;font-size:.85rem;font-weight:600;border:1.5px solid var(--ink)}
+.chip.on{background:#DDF3E7;border-color:var(--ok);color:var(--ok)}
+.chip.off{background:#FBE3DF;border-color:var(--bad);color:var(--bad)}
+.chip.black{background:var(--ink);color:var(--yellow)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.2rem 1rem;margin:.75rem 0 0;font-size:.95rem}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:500}
+.tablewrap{overflow-x:auto;margin-top:.75rem}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--muted);border-bottom:2px solid var(--ink)}
+.filters{display:flex;gap:.75rem;flex-wrap:wrap;align-items:end}
+.filters>div{flex:1 1 150px}
+.empty{padding:1.2rem 0;color:var(--muted)}
+
+/* Consola: lo que realmente viaja por el servicio web */
+.console{position:sticky;top:1rem;background:var(--console);color:var(--console-ink);border-radius:8px;border-top:4px solid var(--yellow);max-height:calc(100vh - 2rem);display:flex;flex-direction:column}
+@media (max-width:980px){.console{position:static;max-height:none}}
+.console header{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;border-bottom:1px solid #2C3139}
+.console h2{font-size:1.3rem;color:#fff}
+.console header button{background:transparent;border:1px solid #4A515B;color:var(--console-ink);border-radius:5px;padding:.15rem .6rem;cursor:pointer;font:inherit;font-size:.85rem}
+.log{overflow:auto;padding:.5rem 1rem 1rem;font:400 .82rem/1.45 ui-monospace,Consolas,Menlo,monospace}
+.log .empty{color:#8B939D;font-family:var(--body);font-size:.92rem}
+details{border-bottom:1px solid #2C3139;padding:.5rem 0}
+summary{cursor:pointer;display:flex;gap:.5rem;align-items:baseline;list-style:none}
+summary::-webkit-details-marker{display:none}
+.m{font-weight:700}
+.m.GET{color:#6CB6FF}.m.POST{color:#7EE2A0}.m.PUT{color:#F2C14E}.m.DELETE{color:#FF8A78}
+.s2{color:#7EE2A0}.s4{color:#FF8A78}
+.t{margin-left:auto;color:#8B939D}
+pre{margin:.4rem 0 0;white-space:pre-wrap;word-break:break-word;color:#C9CED5}
+.lbl{color:#8B939D;margin-top:.4rem;font-family:var(--body)}
+
+@media (prefers-reduced-motion:no-preference){
+  details[open] pre{animation:in .18s ease-out}
+  @keyframes in{from{opacity:0}to{opacity:1}}
+}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="top-in">
+  <div class="brand">
+    <h1>Smart Fit</h1>
+    <p>Servicio web SOA · membresías, accesos, clases y rutinas</p>
+  </div>
+  <div class="status" role="status"><span class="dot" id="dot"></span><span id="statusTxt">Conectando…</span></div>
+</div></div>
+
+<div class="wrap">
+<main>
+  <div class="tabs" role="tablist" aria-label="Secciones">
+    <button class="tab" role="tab" id="t-ingresar" aria-controls="p-ingresar" aria-selected="true">Ingresar datos</button>
+    <button class="tab" role="tab" id="t-consultar" aria-controls="p-consultar" aria-selected="false">Consultar</button>
+    <button class="tab" role="tab" id="t-usuarios" aria-controls="p-usuarios" aria-selected="false">Usuarios</button>
+  </div>
+
+  <!-- ===================== INGRESAR ===================== -->
+  <section class="panel" id="p-ingresar" role="tabpanel" aria-labelledby="t-ingresar">
+    <div class="grid2">
+
+      <form class="card" id="f-usuario">
+        <h2>Registrar usuario</h2>
+        <p class="hint">Da de alta a un socio nuevo. <code>POST /usuarios</code></p>
+        <label for="u-id">Número de socio</label>
+        <input id="u-id" inputmode="numeric" placeholder="23050294" required>
+        <label for="u-nombre">Nombre completo</label>
+        <input id="u-nombre" placeholder="Nombre y apellido" required>
+        <div class="row">
+          <div><label for="u-plan">Plan</label><select id="u-plan"></select></div>
+          <div><label for="u-suc">Sucursal</label><select id="u-suc"></select></div>
+        </div>
+        <label class="check"><input type="checkbox" id="u-activa" checked> Membresía activa</label>
+        <button class="btn" type="submit">Registrar usuario</button>
+        <p class="msg" aria-live="polite"></p>
+      </form>
+
+      <form class="card" id="f-acceso">
+        <h2>Registrar acceso</h2>
+        <p class="hint">Simula el escaneo del QR en la entrada. <code>POST /acceso</code></p>
+        <label for="a-user">Socio</label>
+        <select class="sel-user" id="a-user" required></select>
+        <button class="btn" type="submit">Registrar entrada</button>
+        <p class="msg" aria-live="polite"></p>
+      </form>
+
+      <form class="card" id="f-clase">
+        <h2>Reservar clase</h2>
+        <p class="hint">Reserva o cancela una clase. <code>POST / DELETE /reservar_clase</code></p>
+        <label for="c-user">Socio</label>
+        <select class="sel-user" id="c-user" required></select>
+        <label for="c-clase">Clase</label>
+        <select id="c-clase" required></select>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn" type="submit">Reservar clase</button>
+          <button class="btn ghost" type="button" id="c-cancelar">Cancelar reserva</button>
+        </div>
+        <p class="msg" aria-live="polite"></p>
+      </form>
+
+      <form class="card" id="f-rutina">
+        <h2>Completar rutina</h2>
+        <p class="hint">Suma una rutina terminada. <code>POST /completar_rutina</code></p>
+        <label for="r-user">Socio</label>
+        <select class="sel-user" id="r-user" required></select>
+        <button class="btn" type="submit">Marcar rutina completada</button>
+        <p class="msg" aria-live="polite"></p>
+      </form>
+
+    </div>
+  </section>
+
+  <!-- ===================== CONSULTAR ===================== -->
+  <section class="panel" id="p-consultar" role="tabpanel" aria-labelledby="t-consultar" hidden>
+    <div class="stats" id="stats"></div>
+
+    <div class="card">
+      <h2>Consultar socio</h2>
+      <p class="hint">Verifica membresía y actividad. <code>GET /usuarios/&lt;id&gt;</code></p>
+      <form id="f-buscar" class="filters">
+        <div><label for="b-id">Número de socio</label><input id="b-id" inputmode="numeric" placeholder="23050292" required></div>
+        <button class="btn" type="submit" style="margin:0 0 0 0">Buscar</button>
+      </form>
+      <p class="msg" id="b-msg" aria-live="polite"></p>
+      <div id="b-res"></div>
+    </div>
+
+    <div class="card" style="margin-top:1.25rem">
+      <h2>Historial de actividad</h2>
+      <p class="hint">Eventos registrados por el servicio. <code>GET /historial</code></p>
+      <div class="filters">
+        <div><label for="h-user">Socio</label><select id="h-user"></select></div>
+        <div><label for="h-tipo">Evento</label>
+          <select id="h-tipo">
+            <option value="">Todos</option>
+            <option value="qr_scan_entry">Accesos (qr_scan_entry)</option>
+            <option value="class_booked">Reservas (class_booked)</option>
+            <option value="class_cancelled">Cancelaciones (class_cancelled)</option>
+            <option value="workout_routine_completed">Rutinas (workout_routine_completed)</option>
+          </select></div>
+        <button class="btn ghost" id="h-go" style="margin:0">Consultar historial</button>
+      </div>
+      <div class="tablewrap" id="h-res"></div>
+    </div>
+  </section>
+
+  <!-- ===================== USUARIOS ===================== -->
+  <section class="panel" id="p-usuarios" role="tabpanel" aria-labelledby="t-usuarios" hidden>
+    <div class="card">
+      <h2>Socios registrados</h2>
+      <p class="hint">Activa o desactiva membresías y elimina socios. <code>PUT / DELETE /usuarios/&lt;id&gt;</code></p>
+      <div class="filters">
+        <div><label for="l-plan">Plan</label><select id="l-plan"></select></div>
+        <div><label for="l-suc">Sucursal</label><select id="l-suc"></select></div>
+        <div><label for="l-act">Membresía</label>
+          <select id="l-act"><option value="">Todas</option><option value="true">Activas</option><option value="false">Inactivas</option></select></div>
+      </div>
+      <div class="tablewrap" id="l-res"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== CONSOLA ===================== -->
+<aside class="console" aria-label="Consola de peticiones">
+  <header><h2>Consola del servicio</h2><button id="log-clear" type="button">Limpiar</button></header>
+  <div class="log" id="log"><p class="empty">Aquí verás cada petición HTTP y su respuesta JSON en cuanto uses el sistema.</p></div>
+</aside>
+</div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- Cliente del web service (todo pasa por aquí) ---------- */
+const logEl = $("#log");
+let logCount = 0;
+
+function pintarLog(method, url, body, status, data, ms) {
+  if (logCount === 0) logEl.innerHTML = "";
+  logCount++;
+  const cls = status >= 200 && status < 300 ? "s2" : "s4";
+  const d = document.createElement("details");
+  d.innerHTML = `<summary><span class="m ${method}">${method}</span><span>${esc(url)}</span>
+      <span class="${cls}">${status || "sin conexión"}</span><span class="t">${ms} ms</span></summary>
+    ${body ? `<div class="lbl">Petición</div><pre>${esc(JSON.stringify(body, null, 2))}</pre>` : ""}
+    <div class="lbl">Respuesta</div><pre>${esc(JSON.stringify(data, null, 2))}</pre>`;
+  // solo la petición más reciente queda abierta
+  $$("details", logEl).forEach(x => x.open = false);
+  d.open = true;
+  logEl.prepend(d);
+  while (logEl.children.length > 25) logEl.lastChild.remove();
+}
+
+async function api(method, url, body, quiet = false) {
+  const t0 = performance.now();
+  let res, data = null;
+  try {
+    res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    data = await res.json().catch(() => null);
+  } catch (e) {
+    if (!quiet) pintarLog(method, url, body, 0, { error: "No se pudo conectar con el servicio" }, Math.round(performance.now() - t0));
+    estado(false);
+    throw new Error("No se pudo conectar con el servicio");
+  }
+  estado(true);
+  if (!quiet) pintarLog(method, url, body, res.status, data, Math.round(performance.now() - t0));
+  if (!res.ok) {
+    const det = data?.detalles ? ": " + data.detalles.join(". ") : "";
+    throw new Error((data?.error || res.statusText) + det);
+  }
+  return data;
+}
+
+function estado(ok) {
+  $("#dot").className = "dot " + (ok ? "on" : "off");
+  $("#statusTxt").textContent = ok ? "Servicio en línea" : "Servicio sin conexión";
+}
+
+function aviso(form, texto, ok) {
+  const m = $(".msg", form);
+  m.textContent = texto;
+  m.className = "msg " + (ok ? "ok" : "err");
+}
+
+/* ---------- Pestañas ---------- */
+function abrirTab(id) {
+  $$(".tab").forEach(t => t.setAttribute("aria-selected", t.id === "t-" + id));
+  $$(".panel").forEach(p => p.hidden = p.id !== "p-" + id);
+  if (id === "consultar") { cargarStats(); }
+  if (id === "usuarios") { cargarUsuarios(); }
+}
+$$(".tab").forEach(t => {
+  t.addEventListener("click", () => abrirTab(t.id.slice(2)));
+  t.addEventListener("keydown", e => {
+    const tabs = $$(".tab"), i = tabs.indexOf(t);
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      const n = tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+      n.focus(); abrirTab(n.id.slice(2));
+    }
+  });
+});
+
+/* ---------- Catálogos y selectores de socios ---------- */
+let catalogo = { clases: [], planes: [], sucursales: [] };
+
+const opts = (arr, vacio) => (vacio ? `<option value="">${vacio}</option>` : "") +
+  arr.map(v => `<option>${esc(v)}</option>`).join("");
+
+async function cargarCatalogo() {
+  catalogo = await api("GET", "/clases", null, true);
+  $("#u-plan").innerHTML = opts(catalogo.planes);
+  $("#u-suc").innerHTML = opts(catalogo.sucursales);
+  $("#c-clase").innerHTML = opts(catalogo.clases);
+  $("#l-plan").innerHTML = opts(catalogo.planes, "Todos");
+  $("#l-suc").innerHTML = opts(catalogo.sucursales, "Todas");
+}
+
+async function refrescarSocios() {
+  const { usuarios } = await api("GET", "/usuarios", null, true);
+  const o = usuarios.map(u => `<option value="${esc(u.user_id)}">${esc(u.user_id)} · ${esc(u.nombre)}</option>`).join("");
+  $$(".sel-user").forEach(s => { const v = s.value; s.innerHTML = o; if (v) s.value = v; });
+  const h = $("#h-user"), hv = h.value;
+  h.innerHTML = `<option value="">Todos</option>` + o;
+  h.value = hv;
+}
+
+/* ---------- INGRESAR ---------- */
+$("#f-usuario").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target;
+  try {
+    const r = await api("POST", "/usuarios", {
+      user_id: $("#u-id").value, nombre: $("#u-nombre").value,
+      plan: $("#u-plan").value, sucursal: $("#u-suc").value,
+      membresia_activa: $("#u-activa").checked,
+    });
+    aviso(f, `${r.nombre} registrado con el plan ${r.plan}.`, true);
+    f.reset(); $("#u-activa").checked = true;
+    refrescarSocios();
+  } catch (err) { aviso(f, err.message, false); }
+});
+
+$("#f-acceso").addEventListener("submit", async e => {
+  e.preventDefault();
+  try {
+    const r = await api("POST", "/acceso", { user_id: $("#a-user").value });
+    aviso(e.target, `Entrada registrada. Accesos totales: ${r.total_accesos}.`, true);
+  } catch (err) { aviso(e.target, err.message, false); }
+});
+
+$("#f-clase").addEventListener("submit", async e => {
+  e.preventDefault();
+  try {
+    const r = await api("POST", "/reservar_clase", { user_id: $("#c-user").value, clase: $("#c-clase").value });
+    aviso(e.target, `Reservaste ${r.clase}. Clases reservadas: ${r.clases_reservadas.join(", ")}.`, true);
+  } catch (err) { aviso(e.target, err.message, false); }
+});
+
+$("#c-cancelar").addEventListener("click", async () => {
+  const f = $("#f-clase");
+  try {
+    const r = await api("DELETE", "/reservar_clase", { user_id: $("#c-user").value, clase: $("#c-clase").value });
+    aviso(f, `Cancelaste ${r.clase}.`, true);
+  } catch (err) { aviso(f, err.message, false); }
+});
+
+$("#f-rutina").addEventListener("submit", async e => {
+  e.preventDefault();
+  try {
+    const r = await api("POST", "/completar_rutina", { user_id: $("#r-user").value });
+    aviso(e.target, `Rutina registrada. Rutinas completadas: ${r.total_rutinas}.`, true);
+  } catch (err) { aviso(e.target, err.message, false); }
+});
+
+/* ---------- CONSULTAR ---------- */
+async function cargarStats() {
+  try {
+    const s = await api("GET", "/estadisticas", null, true);
+    const items = [
+      [s.total_usuarios, "Socios"], [s.membresias_activas, "Membresías activas"],
+      [s.total_accesos, "Accesos"], [s.total_reservas, "Reservas actuales"],
+      [s.total_rutinas, "Rutinas completadas"], [s.clase_mas_reservada ?? "—", "Clase más reservada"],
+    ];
+    $("#stats").innerHTML = items.map(([n, l]) => `<div class="stat"><b>${esc(n)}</b><span>${l}</span></div>`).join("");
+  } catch (e) { /* el indicador de estado ya avisa */ }
+}
+
+$("#f-buscar").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = $("#b-msg"), res = $("#b-res");
+  msg.textContent = ""; res.innerHTML = "";
+  try {
+    const u = await api("GET", "/usuarios/" + encodeURIComponent($("#b-id").value.trim()));
+    res.innerHTML = `
+      <div class="member">
+        <div><h3>${esc(u.nombre)}</h3><span>Socio ${esc(u.user_id)} · ${esc(u.sucursal)}</span></div>
+        <div><span class="chip ${u.plan === "Black" ? "black" : ""}">Plan ${esc(u.plan)}</span>
+             <span class="chip ${u.membresia_activa ? "on" : "off"}">${u.membresia_activa ? "Membresía activa" : "Membresía inactiva"}</span></div>
+      </div>
+      <dl class="kv">
+        <dt>Accesos</dt><dd>${u.accesos}</dd>
+        <dt>Rutinas completadas</dt><dd>${u.rutinas_completadas}</dd>
+        <dt>Clases reservadas</dt><dd>${u.clases_reservadas.length ? esc(u.clases_reservadas.join(", ")) : "Ninguna"}</dd>
+        <dt>Registrado</dt><dd>${esc(u.creado ?? "—")}</dd>
+      </dl>`;
+  } catch (err) { msg.textContent = err.message; msg.className = "msg err"; }
+});
+
+async function cargarHistorial() {
+  const q = new URLSearchParams();
+  if ($("#h-user").value) q.set("user_id", $("#h-user").value);
+  if ($("#h-tipo").value) q.set("tipo", $("#h-tipo").value);
+  q.set("limite", 30);
+  try {
+    const { eventos, total } = await api("GET", "/historial?" + q);
+    $("#h-res").innerHTML = eventos.length ? `<table>
+      <thead><tr><th>Fecha</th><th>Socio</th><th>Evento</th><th>Detalle</th></tr></thead>
+      <tbody>${eventos.map(v => `<tr><td>${esc(v.fecha)}</td><td>${esc(v.user_id)}</td><td>${esc(v.tipo)}</td><td>${esc(v.detalle ?? "")}</td></tr>`).join("")}</tbody>
+      </table>${total > eventos.length ? `<p class="empty">Mostrando ${eventos.length} de ${total}.</p>` : ""}`
+      : `<p class="empty">Sin eventos con esos filtros. Registra un acceso, una clase o una rutina en “Ingresar datos”.</p>`;
+  } catch (err) { $("#h-res").innerHTML = `<p class="msg err">${esc(err.message)}</p>`; }
+}
+$("#h-go").addEventListener("click", cargarHistorial);
+
+/* ---------- USUARIOS ---------- */
+async function cargarUsuarios() {
+  const q = new URLSearchParams();
+  if ($("#l-plan").value) q.set("plan", $("#l-plan").value);
+  if ($("#l-suc").value) q.set("sucursal", $("#l-suc").value);
+  if ($("#l-act").value) q.set("activa", $("#l-act").value);
+  try {
+    const { usuarios } = await api("GET", "/usuarios?" + q, null, true);
+    $("#l-res").innerHTML = usuarios.length ? `<table>
+      <thead><tr><th>Socio</th><th>Nombre</th><th>Plan</th><th>Sucursal</th><th>Membresía</th><th></th></tr></thead>
+      <tbody>${usuarios.map(u => `<tr>
+        <td>${esc(u.user_id)}</td><td>${esc(u.nombre)}</td><td>${esc(u.plan)}</td><td>${esc(u.sucursal)}</td>
+        <td><span class="chip ${u.membresia_activa ? "on" : "off"}">${u.membresia_activa ? "Activa" : "Inactiva"}</span></td>
+        <td style="display:flex;gap:.4rem">
+          <button class="btn small ghost" data-act="toggle" data-id="${esc(u.user_id)}" data-val="${u.membresia_activa}">${u.membresia_activa ? "Desactivar" : "Activar"}</button>
+          <button class="btn small danger" data-act="del" data-id="${esc(u.user_id)}">Eliminar</button>
+        </td></tr>`).join("")}</tbody></table>`
+      : `<p class="empty">No hay socios con esos filtros.</p>`;
+  } catch (err) { $("#l-res").innerHTML = `<p class="msg err">${esc(err.message)}</p>`; }
+}
+["l-plan", "l-suc", "l-act"].forEach(id => $("#" + id).addEventListener("change", cargarUsuarios));
+
+$("#l-res").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  const id = b.dataset.id;
+  try {
+    if (b.dataset.act === "toggle") {
+      await api("PUT", "/usuarios/" + id, { membresia_activa: b.dataset.val !== "true" });
+    } else if (confirm(`¿Eliminar al socio ${id}? Esta acción no se puede deshacer.`)) {
+      await api("DELETE", "/usuarios/" + id);
+    } else return;
+    cargarUsuarios(); refrescarSocios();
+  } catch (err) { alert(err.message); }
+});
+
+$("#log-clear").addEventListener("click", () => {
+  logCount = 0;
+  logEl.innerHTML = `<p class="empty">Aquí verás cada petición HTTP y su respuesta JSON en cuanto uses el sistema.</p>`;
+});
+
+/* ---------- Inicio ---------- */
+(async () => {
+  try { await cargarCatalogo(); await refrescarSocios(); }
+  catch (e) { /* estado() ya mostró el error */ }
+})();
+</script>
+</body>
+</html>
