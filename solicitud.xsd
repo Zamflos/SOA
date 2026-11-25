@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Esquema XML del REQUEST - Smart Fit Web Service -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://smartfit.uadeo.mx/ws"
+           targetNamespace="http://smartfit.uadeo.mx/ws"
+           elementFormDefault="qualified">
+
+  <xs:element name="SolicitudSmartFit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="operacion" type="TipoOperacion"/>
+        <xs:element name="parametros" type="TipoParametros"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="TipoOperacion">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="consultarMembresia"/>
+      <xs:enumeration value="registrarUsuario"/>
+      <xs:enumeration value="registrarAcceso"/>
+      <xs:enumeration value="reservarClase"/>
+      <xs:enumeration value="completarRutina"/>
+      <xs:enumeration value="consultarHistorial"/>
+      <xs:enumeration value="consultarPromociones"/>
+      <xs:enumeration value="canjearPromocion"/>
+      <xs:enumeration value="consultarSegmentos"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TipoUserId">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{4,12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TipoPlan">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Smart"/>
+      <xs:enumeration value="Black"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TipoTexto">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="3"/>
+      <xs:maxLength value="80"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TipoCodigo">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z0-9]{3,20}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TipoLimite">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="500"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="TipoParametros">
+    <xs:sequence>
+      <xs:element name="userId"   type="TipoUserId" minOccurs="0"/>
+      <xs:element name="nombre"   type="TipoTexto"  minOccurs="0"/>
+      <xs:element name="plan"     type="TipoPlan"   minOccurs="0"/>
+      <xs:element name="sucursal" type="TipoTexto"  minOccurs="0"/>
+      <xs:element name="clase"    type="TipoTexto"  minOccurs="0"/>
+      <xs:element name="limite"   type="TipoLimite" minOccurs="0"/>
+      <xs:element name="codigo"   type="TipoCodigo" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

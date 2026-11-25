@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Esquema XML del RESPONSE - Smart Fit Web Service -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://smartfit.uadeo.mx/ws"
+           targetNamespace="http://smartfit.uadeo.mx/ws"
+           elementFormDefault="qualified">
+
+  <xs:element name="RespuestaSmartFit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="estado"  type="TipoEstado"/>
+        <xs:element name="codigo"  type="xs:int"/>
+        <xs:element name="mensaje" type="xs:string"/>
+        <xs:element name="datos"   type="TipoDatos" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="TipoEstado">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OK"/>
+      <xs:enumeration value="ERROR"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="TipoDatos">
+    <xs:choice>
+      <xs:element name="socio"   type="TipoSocio"/>
+      <xs:element name="eventos" type="TipoEventos"/>
+      <xs:element name="marketing" type="TipoMarketing"/>
+      <xs:element name="segmentos" type="TipoSegmentos"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="TipoSocio">
+    <xs:sequence>
+      <xs:element name="userId"              type="xs:string"/>
+      <xs:element name="nombre"              type="xs:string"/>
+      <xs:element name="plan"                type="xs:string"/>
+      <xs:element name="sucursal"            type="xs:string"/>
+      <xs:element name="membresiaActiva"     type="xs:boolean"/>
+      <xs:element name="accesos"             type="xs:int"/>
+      <xs:element name="rutinasCompletadas"  type="xs:int"/>
+      <xs:element name="clasesReservadas">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="clase" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="segmento" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TipoEventos">
+    <xs:sequence>
+      <xs:element name="evento" type="TipoEvento" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TipoEvento">
+    <xs:sequence>
+      <xs:element name="id"      type="xs:int"/>
+      <xs:element name="userId"  type="xs:string"/>
+      <xs:element name="tipo"    type="xs:string"/>
+      <xs:element name="detalle" type="xs:string" minOccurs="0"/>
+      <xs:element name="fecha"   type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Marketing: segmento del socio y promociones a las que puede acceder -->
+  <xs:complexType name="TipoMarketing">
+    <xs:sequence>
+      <xs:element name="segmento" type="xs:string"/>
+      <xs:element name="promociones">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="promocion" type="TipoPromocion" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TipoPromocion">
+    <xs:sequence>
+      <xs:element name="codigo"       type="xs:string"/>
+      <xs:element name="titulo"       type="xs:string"/>
+      <xs:element name="descripcion"  type="xs:string"/>
+      <xs:element name="descuentoPct" type="xs:int"/>
+      <xs:element name="vigenteHasta" type="xs:date"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Marketing: cuántos socios hay en cada segmento -->
+  <xs:complexType name="TipoSegmentos">
+    <xs:sequence>
+      <xs:element name="segmento" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="total"  type="xs:int"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
